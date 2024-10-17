@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, make_response
 from pymongo import MongoClient
 from bson import ObjectId
+import string
 
 app = Flask(__name__)
 
@@ -27,6 +28,8 @@ def show_allbusinesses():
 
 @app.route("/api/v1.0/businesses/<string:id>", methods=['GET'])
 def show_one_business(id):
+    if len(id) != 24 or not all(c in string.hexdigits for c in id):
+        return make_response( jsonify( {"error" : "Invalid Business ID"} ), 404 )
     business = businesses.find_one({'_id' :  ObjectId(id)})
     if id in businesses:
         business['id'] = str(business['_id'])
